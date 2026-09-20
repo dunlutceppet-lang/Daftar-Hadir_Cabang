@@ -1,0 +1,67 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MDA ASSADAD — CABANG</title><style>
+:root{--g:#0f5132;--g2:#198754;--gold:#c9a227;--bg:#f5f7f6;--card:#fff;--muted:#667085;--danger:#dc3545}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:#17211b}
+header{background:linear-gradient(135deg,#0b3d25,#17633d);color:#fff;padding:22px 18px;position:sticky;top:0;z-index:5}
+header h1{margin:0;font-size:22px}header p{margin:5px 0 0;opacity:.85}
+nav{display:flex;gap:8px;overflow:auto;padding:10px;background:#fff;border-bottom:1px solid #ddd;position:sticky;top:82px;z-index:4}
+nav button{border:0;background:#eef5f0;color:var(--g);padding:10px 13px;border-radius:10px;white-space:nowrap;font-weight:700;cursor:pointer}
+nav button.active{background:var(--g);color:#fff}
+main{padding:18px;max-width:1250px;margin:auto}.page{display:none}.page.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.card{background:var(--card);border-radius:16px;padding:16px;box-shadow:0 5px 20px #153b2412;border:1px solid #e5ebe7}
+.kpi{font-size:30px;font-weight:800;color:var(--g);margin-top:6px}.muted{color:var(--muted);font-size:13px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}.field{flex:1;min-width:160px}label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}input,select{width:100%;padding:10px;border:1px solid #ccd5cf;border-radius:9px;background:#fff}
+button,.btn{border:0;border-radius:9px;padding:10px 13px;background:var(--g);color:#fff;font-weight:700;cursor:pointer}.btn.gold{background:var(--gold)}.btn.red{background:var(--danger)}.btn.gray{background:#6c757d}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden}th,td{padding:9px;border-bottom:1px solid #e8ece9;text-align:left;font-size:13px}th{background:#eef5f0;color:var(--g)}
+.tablewrap{overflow:auto;margin-top:14px}.badge{display:inline-block;padding:4px 8px;border-radius:99px;background:#eaf4ed;color:var(--g);font-size:12px;font-weight:700}
+.actions{display:flex;gap:7px;flex-wrap:wrap}.dashlink{cursor:pointer}.chart{height:280px!important}
+footer{text-align:center;color:#777;padding:25px}
+@media print{header,nav,.noprint{display:none!important}.page{display:block!important}.card{box-shadow:none;border:1px solid #ddd}body{background:#fff}}
+</style><script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script></head>
+<body><header><h1>🕌 MDA ASSADAD — CABANG</h1><p>Daftar Hadir Asatidz • Mode CABANG: input, kelola, rekap, export ke INDUK</p></header><nav><button onclick="go('dashboard')" id="nav-dashboard">🏠 Dashboard</button><button onclick="go('ustadz')" id="nav-ustadz">👨‍🏫 Ustadz</button><button onclick="go('absensi')" id="nav-absensi">📝 Absensi</button><button onclick="go('rekap')" id="nav-rekap">📊 Rekap Bulanan</button><button onclick="go('honor')" id="nav-honor">💰 Honor</button><button onclick="go('file')" id="nav-file">📁 Import/Export</button></nav><main>
+<section id="dashboard" class="page active">
+<div class="grid">
+<div class="card dashlink" onclick="go('ustadz')">👨‍🏫<div class="muted">Ustadz</div><div class="kpi" id="kU">0</div></div>
+<div class="card dashlink" onclick="go('absensi')">📝<div class="muted">Data Kehadiran</div><div class="kpi" id="kA">0</div></div>
+<div class="card dashlink" onclick="go('rekap')">📊<div class="muted">Hadir Bulan Ini</div><div class="kpi" id="kH">0</div></div>
+<div class="card dashlink" onclick="go('honor')">💰<div class="muted">Total Honor</div><div class="kpi" id="kHonor">Rp0</div></div>
+</div>
+<div class="card" style="margin-top:14px"><h3>📈 Grafik Kehadiran</h3><canvas id="chart" class="chart"></canvas></div>
+</section>
+
+<section id="ustadz" class="page"><div class="card"><h2>👨‍🏫 Data Ustadz</h2>
+<div class="row"><div class="field"><label>Nama Ustadz</label><input id="uNama"></div><div class="field"><label>Kelas/Cabang</label><input id="uKelas"></div><div class="field"><label>Honor per Jam</label><input id="uHonor" type="number" value="0"></div><button onclick="addU()">➕ Tambah / Simpan</button></div>
+<div class="tablewrap"><table><thead><tr><th>No</th><th>Nama</th><th>Kelas</th><th>Honor/Jam</th><th>Aksi</th></tr></thead><tbody id="uTable"></tbody></table></div></div></section>
+
+<section id="absensi" class="page"><div class="card"><h2>📝 Input Kehadiran</h2>
+<div class="row"><div class="field"><label>Tanggal</label><input id="tgl" type="date"></div><div class="field"><label>Ustadz</label><select id="aU"></select></div><div class="field"><label>Jam Ke</label><select id="jam"><option>1</option><option>2</option><option>3</option><option>4</option></select></div><div class="field"><label>Kehadiran</label><select id="status"><option>Hadir</option><option>Ijin</option><option>Sakit</option><option>Ghaib</option></select></div><button onclick="addA()">💾 Simpan</button></div>
+<div class="tablewrap"><table><thead><tr><th>Tanggal</th><th>Ustadz</th><th>Jam</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="aTable"></tbody></table></div></div></section>
+
+<section id="rekap" class="page"><div class="card"><h2>📊 Rekap Bulanan</h2><div class="row"><div class="field"><label>Bulan</label><input id="bulan" type="month"></div><button onclick="renderAll()">🔄 Hitung</button><button onclick="window.print()">🖨️ Cetak</button></div><div class="tablewrap"><table><thead><tr><th>Ustadz</th><th>Hadir</th><th>Ijin</th><th>Sakit</th><th>Ghaib</th><th>Total Jam Hadir</th><th>Honor</th></tr></thead><tbody id="rTable"></tbody></table></div></div></section>
+
+<section id="honor" class="page"><div class="card"><h2>💰 Pengaturan Honor</h2><p class="muted">Honor dihitung dari jam berstatus Hadir × honor per jam masing-masing ustadz.</p><button onclick="go('ustadz')">✏️ Edit Honor Ustadz</button></div></section>
+
+<section id="file" class="page"><div class="card"><h2>📁 Export / Import</h2><p>File Excel dari CABANG dikirim ke aplikasi INDUK.</p><div class="actions"><button onclick="exportExcel()">📤 Export Excel ke Induk</button><button class="btn gold" onclick="exportRekap()">📊 Export Rekap Excel</button><button class="btn gray" onclick="window.print()">📄 Export/Cetak PDF</button><label class="btn" style="display:inline-block">📥 Import Excel<input type="file" accept=".xlsx,.xls" onchange="importExcel(event)" style="display:none"></label></div></div></section>
+</main><footer>MDA ASSADAD • Sistem Daftar Hadir Asatidz</footer><script>
+const K='mda_cabang_v3'; let d=JSON.parse(localStorage.getItem(K)||'{"ustadz":[],"absensi":[]}');
+const save=()=>localStorage.setItem(K,JSON.stringify(d));
+function go(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));let n=document.getElementById('nav-'+id);if(n)n.classList.add('active');renderAll()}
+function addU(){let nama=uNama.value.trim();if(!nama)return alert('Nama ustadz wajib diisi');let idx=d.ustadz.findIndex(x=>x.nama===nama);let o={id:idx>=0?d.ustadz[idx].id:Date.now(),nama,kelas:uKelas.value,honor:+uHonor.value||0};if(idx>=0)d.ustadz[idx]=o;else d.ustadz.push(o);save();uNama.value=uKelas.value='';uHonor.value=0;renderAll()}
+function editU(i){let u=d.ustadz[i];uNama.value=u.nama;uKelas.value=u.kelas;uHonor.value=u.honor;go('ustadz')}
+function delU(i){if(confirm('Hapus ustadz?')){d.ustadz.splice(i,1);save();renderAll()}}
+function addA(){if(!aU.value)return alert('Tambahkan ustadz dulu');d.absensi.push({tgl:tgl.value,u:+aU.value,jam:+jam.value,status:status.value});save();renderAll()}
+function delA(i){d.absensi.splice(i,1);save();renderAll()}
+function rupiah(n){return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(n)}
+function renderAll(){
+uTable.innerHTML=d.ustadz.map((u,i)=>`<tr><td>${i+1}</td><td>${u.nama}</td><td>${u.kelas||'-'}</td><td>${rupiah(u.honor)}</td><td><button onclick="editU(${i})">✏️</button> <button class="btn red" onclick="delU(${i})">🗑️</button></td></tr>`).join('');
+aU.innerHTML='<option value="">-- pilih ustadz --</option>'+d.ustadz.map((u,i)=>`<option value="${i}">${u.nama}</option>`).join('');
+aTable.innerHTML=d.absensi.slice().reverse().map((a,ri)=>{let i=d.absensi.length-1-ri,u=d.ustadz[a.u];return `<tr><td>${a.tgl}</td><td>${u?.nama||'-'}</td><td>Jam ${a.jam}</td><td><span class="badge">${a.status}</span></td><td><button class="btn red" onclick="delA(${i})">🗑️</button></td></tr>`}).join('');
+let ym=bulan.value||new Date().toISOString().slice(0,7);bulan.value=ym;let rows=d.ustadz.map((u,i)=>{let z={Hadir:0,Ijin:0,Sakit:0,Ghaib:0};d.absensi.filter(a=>a.u===i&&a.tgl.startsWith(ym)).forEach(a=>z[a.status]++);return {u,z,h:z.Hadir,honor:z.Hadir*u.honor}});rTable.innerHTML=rows.map(x=>`<tr><td>${x.u.nama}</td><td>${x.z.Hadir}</td><td>${x.z.Ijin}</td><td>${x.z.Sakit}</td><td>${x.z.Ghaib}</td><td>${x.h}</td><td>${rupiah(x.honor)}</td></tr>`).join('');
+kU.textContent=d.ustadz.length;kA.textContent=d.absensi.length;kH.textContent=d.absensi.filter(a=>a.tgl.startsWith(ym)&&a.status==='Hadir').length;kHonor.textContent=rupiah(rows.reduce((s,x)=>s+x.honor,0));draw(rows)}
+let chart;function draw(rows){if(chart)chart.destroy();chart=new Chart(document.getElementById('chart'),{type:'bar',data:{labels:rows.map(x=>x.u.nama),datasets:[{label:'Hadir',data:rows.map(x=>x.z.Hadir)},{label:'Ijin',data:rows.map(x=>x.z.Ijin)},{label:'Sakit',data:rows.map(x=>x.z.Sakit)},{label:'Ghaib',data:rows.map(x=>x.z.Ghaib)}]},options:{responsive:true,maintainAspectRatio:false}})}
+function rowsExcel(){return d.absensi.map(a=>({Tanggal:a.tgl,Ustadz:d.ustadz[a.u]?.nama||'',Kelas:d.ustadz[a.u]?.kelas||'',Jam:a.jam,Kehadiran:a.status,HonorPerJam:d.ustadz[a.u]?.honor||0}))}
+function exportExcel(){let wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(d.ustadz.map(x=>({Nama:x.nama,Kelas:x.kelas,HonorPerJam:x.honor}))),"Ustadz");XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rowsExcel()),"Absensi");XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet([{Tipe:"CABANG",Aplikasi:"MDA ASSADAD"}]),"Info");XLSX.writeFile(wb,'MDA_ASSADAD_CABANG_'+(bulan.value||'rekap')+'.xlsx')}
+function exportRekap(){let ym=bulan.value||new Date().toISOString().slice(0,7),arr=d.ustadz.map((u,i)=>{let z={Hadir:0,Ijin:0,Sakit:0,Ghaib:0};d.absensi.filter(a=>a.u===i&&a.tgl.startsWith(ym)).forEach(a=>z[a.status]++);return {Ustadz:u.nama,Kelas:u.kelas,Hadir:z.Hadir,Ijin:z.Ijin,Sakit:z.Sakit,Ghaib:z.Ghaib,Honor:z.Hadir*u.honor}});let wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(arr),"Rekap Bulanan");XLSX.writeFile(wb,'REKAP_MDA_ASSADAD_'+ym+'.xlsx')}
+function importExcel(ev){let f=ev.target.files[0];if(!f)return;let r=new FileReader();r.onload=e=>{let wb=XLSX.read(e.target.result,{type:'array'}),ws=wb.Sheets['Ustadz'],wa=wb.Sheets['Absensi'];if(ws)d.ustadz=XLSX.utils.sheet_to_json(ws).map(x=>({id:Date.now()+Math.random(),nama:x.Nama||'',kelas:x.Kelas||'',honor:+x.HonorPerJam||0}));if(wa){let names=d.ustadz.map(x=>x.nama);d.absensi=XLSX.utils.sheet_to_json(wa).map(x=>({tgl:x.Tanggal,u:names.indexOf(x.Ustadz),jam:+x.Jam||1,status:x.Kehadiran||'Hadir'})).filter(x=>x.u>=0)}save();renderAll();alert('Import selesai')};r.readAsArrayBuffer(f)}
+tgl.value=new Date().toISOString().slice(0,10);bulan.value=new Date().toISOString().slice(0,7);go('dashboard');
+</script></body></html>
